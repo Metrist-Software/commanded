@@ -149,25 +149,6 @@ defmodule Commanded.ProcessManagers.ProcessManagerRoutingTest do
       assert_receive {:continued, ^instance}
     end
 
-    test "should continue all instances on `:continue!, true`", %{pid: pid, process_uuid: process_uuid} do
-      second_process_uuids = UUID.uuid4()
-
-      send_events(pid, [
-        %Started{process_uuid: process_uuid, strict?: true, reply_to: self()},
-        %Started{process_uuid: second_process_uuids, strict?: true, reply_to: self()},
-        %AllContinued{strict?: true, reply_to: self()}
-      ])
-
-      instance = wait_for_instance(pid, process_uuid)
-      instance2 = wait_for_instance(pid, second_process_uuids)
-
-      assert_receive {:started, ^instance}
-      assert_receive {:started, ^instance2}
-      assert_receive {:continued, ^instance}
-      assert_receive {:continued, ^instance2}
-    end
-
-
     test "should error on `:continue` when instance not already started", %{
       pid: pid,
       process_uuid: process_uuid
