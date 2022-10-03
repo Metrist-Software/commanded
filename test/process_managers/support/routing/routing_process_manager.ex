@@ -13,6 +13,10 @@ defmodule Commanded.ProcessManagers.RoutingProcessManager do
     defstruct [:process_uuid, :reply_to, strict?: false]
   end
 
+  defmodule AllContinued do
+    defstruct [:reply_to, strict?: false]
+  end
+
   defmodule Stopped do
     @enforce_keys [:process_uuid]
     defstruct [:process_uuid]
@@ -39,6 +43,10 @@ defmodule Commanded.ProcessManagers.RoutingProcessManager do
 
   def interested?(%Continued{process_uuid: process_uuid}), do: {:continue, process_uuid}
 
+  def interested?(%AllContinued{strict?: true}), do: {:continue!, true}
+
+  def interested?(%AllContinued{}), do: {:continue, true}
+
   def interested?(%Stopped{process_uuid: process_uuid}), do: {:stop, process_uuid}
 
   def interested?(%Errored{}), do: raise("error")
@@ -53,6 +61,14 @@ defmodule Commanded.ProcessManagers.RoutingProcessManager do
 
   def handle(%RoutingProcessManager{}, %Continued{} = event) do
     %Continued{reply_to: reply_to} = event
+
+    send(reply_to, {:continued, self()})
+
+    []
+  end
+
+  def handle(%RoutingProcessManager{}, %AllContinued{} = event) do
+    %AllContinued{reply_to: reply_to} = event
 
     send(reply_to, {:continued, self()})
 

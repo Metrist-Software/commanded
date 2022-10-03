@@ -340,6 +340,10 @@ defmodule Commanded.ProcessManagers.ProcessRouter do
         {:continue, []} ->
           ack_and_continue(event, state)
 
+        {:continue, true} ->
+          get_process_managers(state)
+          |> Enum.reduce(state, &delegate_event(&1, event, &2))
+
         {:continue, process_uuid} ->
           Logger.debug(fn -> describe(state) <> " is interested in event " <> describe(event) end)
 
@@ -353,6 +357,10 @@ defmodule Commanded.ProcessManagers.ProcessRouter do
 
         {:continue!, []} ->
           ack_and_continue(event, state)
+
+        {:continue!, true} ->
+          get_process_managers(state)
+          |> Enum.reduce(state, &delegate_event(&1, event, &2))
 
         {:continue!, process_uuid} ->
           Logger.debug(fn -> describe(state) <> " is interested in event " <> describe(event) end)
@@ -529,6 +537,12 @@ defmodule Commanded.ProcessManagers.ProcessRouter do
       nil -> {:error, :process_manager_not_found}
     end
   end
+
+  defp get_process_managers(%State{} = state) do
+    %State{process_managers: process_managers} = state
+    Enum.map(process_managers, fn {_process_uuid, pid} -> pid end)
+  end
+
 
   # Delegate event to process instance who will ack event processing on success
   defp delegate_event(process_instance, %RecordedEvent{} = event, %State{} = state) do
