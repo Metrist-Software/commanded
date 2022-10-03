@@ -43,8 +43,6 @@ defmodule Commanded.ProcessManagers.RoutingProcessManager do
 
   def interested?(%Continued{process_uuid: process_uuid}), do: {:continue, process_uuid}
 
-  def interested?(%AllContinued{strict?: true}), do: {:continue!, true}
-
   def interested?(%AllContinued{}), do: {:continue, true}
 
   def interested?(%Stopped{process_uuid: process_uuid}), do: {:stop, process_uuid}
