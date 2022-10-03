@@ -11,6 +11,8 @@ The `c:Commanded.ProcessManagers.ProcessManager.interested?/1` function is used 
 - `{:start, process_uuid}` - create a new instance of the process manager.
 - `{:start!, process_uuid}` - create a new instance of the process manager (strict).
 - `{:continue, process_uuid}` - continue execution of an existing process manager.
+- `{:continue, true}` - continue execution of all existing process manager instances. No continue! option as this
+will only operate on existing processes
 - `{:continue!, process_uuid}` - continue execution of an existing process manager (strict).
 - `{:stop, process_uuid}` - stop an existing process manager, shutdown its
   process, and delete its persisted state.
