@@ -343,8 +343,12 @@ defmodule Commanded.ProcessManagers.ProcessRouter do
         {:continue, true} ->
           Logger.debug(fn -> describe(state) <> " is interested in event " <> describe(event) end)
 
-          get_process_managers(state)
-          |> Enum.reduce(state, &delegate_event(&1, event, &2))
+          case get_process_managers(state) do
+            [] -> ack_and_continue(event, state)
+            process_managers ->
+              process_managers
+              |> Enum.reduce(state, &delegate_event(&1, event, &2))
+          end
 
         {:continue, process_uuid} ->
           Logger.debug(fn -> describe(state) <> " is interested in event " <> describe(event) end)
